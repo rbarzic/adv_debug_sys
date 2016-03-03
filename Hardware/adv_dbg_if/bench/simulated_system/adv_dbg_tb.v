@@ -80,7 +80,7 @@
 `define wait_jtag_period #50
 
 
-module adv_debug_tb; 
+module adv_debug_tb;
 
 // Connections to the JTAG TAP
 reg jtag_tck_o;
@@ -138,18 +138,18 @@ wire cpu1_we;
 wire cpu1_ack;
 wire cpu1_rst;
 `endif //  `ifdef DBG_CPU1_SUPPORTED
-   
+
 reg test_enabled;
 
 // Data which will be written to the WB interface
-reg [31:0] static_data32 [0:15]; 
+reg [31:0] static_data32 [0:15];
 reg [15:0] static_data16 [0:15];
 reg [7:0] static_data8 [0:15];
 
 // Arrays to hold data read back from the WB interface, for comparison
-reg [31:0] input_data32 [0:15]; 
+reg [31:0] input_data32 [0:15];
 reg [15:0] input_data16 [0:15];
-reg [7:0]  input_data8 [0:15];                                
+reg [7:0]  input_data8 [0:15];
 
 reg [32:0] err_data;  // holds the contents of the error register from the various modules
 
@@ -193,7 +193,7 @@ begin
 
    // Init the memory
   initialize_memory(32'h0,32'h16);
-  
+
   // Init the WB model
   i_wb.cycle_response(`ACK_RESPONSE, 2, 0);  // response type, wait cycles, retry_cycles
 
@@ -205,23 +205,23 @@ always @ (posedge test_enabled)
 begin
 
   $display("Starting advanced debug test");
-  
+
   reset_jtag;
   #1000;
   check_idcode;
   #1000;
-  
+
   // Select the debug module in the IR
   set_ir(`DEBUG);
   #1000;
-  
-  
+
+
   ///////////////////////////////////////////////////////////////////
   // Test CPU0 unit
   ////////////////////////////////////////////////////////////////////
 `ifdef DBG_CPU0_SUPPORTED
   // Select the CPU0 unit in the debug module
-  #1000; 
+  #1000;
   $display("Selecting CPU0 module at time %t", $time);
   select_debug_module(`DBG_TOP_CPU0_DEBUG_MODULE);
 
@@ -232,40 +232,40 @@ begin
    #1000;
    select_module_internal_register(32'h0, 1);  // Really just a read, with discarded data
    #1000;
-    
+
    // Read the stall and reset bits
    $display("Testing reset and stall bits at time %t", $time);
    read_module_internal_register(8'd2, err_data);  // We assume the register is already selected
    $display("Reset and stall bits are %x", err_data);
    #1000;
-    
+
    //  Set rst/stall bits
-   $display("Setting reset and stall bits at time %t", $time);    
+   $display("Setting reset and stall bits at time %t", $time);
     write_module_internal_register(32'h0, 8'h1, 32'h3, 8'h2);  // idx, idxlen, data, datalen
    #1000;
-   
+
    // Read the bits again
    $display("Testing reset and stall bits again at time %t", $time);
    read_module_internal_register(8'd2, err_data);  // We assume the register is already selected
    $display("Reset and stall bits are %x", err_data);
    #1000;
-   
+
    // Clear the bits
-      $display("Clearing reset and stall bits at time %t", $time);    
+      $display("Clearing reset and stall bits at time %t", $time);
     write_module_internal_register(32'h0, 8'h1, 32'h0, 8'h2);  // idx, idxlen, data, datalen
    #1000;
-   
+
       // Read the bits again
    $display("Testing reset and stall bits again at time %t", $time);
    read_module_internal_register(8'd2, err_data);  // We assume the register is already selected
    $display("Reset and stall bits are %x", err_data);
    #1000;
-   
+
    // Behavioral CPU model must be stalled in order to do SPR access
-   //$display("Setting reset and stall bits at time %t", $time);    
+   //$display("Setting reset and stall bits at time %t", $time);
    write_module_internal_register(32'h0, 8'h1, 32'h1, 8'h2);  // idx, idxlen, data, datalen
    #1000;
-   
+
    // Test SPR bus access
   $display("Testing CPU0 32-bit burst write at time %t", $time);
   do_module_burst_write(3'h4, 16'd16, 32'h10);  // 3-bit word size (bytes), 16-bit word count, 32-bit start address
@@ -276,26 +276,26 @@ begin
 
 `endif
 
-  
+
   ///////////////////////////////////////////////////////////////////
   // Test the Wishbone unit
   ////////////////////////////////////////////////////////////////////
-  
+
 `ifdef DBG_WISHBONE_SUPPORTED
   // Select the WB unit in the debug module
-  #1000; 
+  #1000;
   $display("Selecting Wishbone module at time %t", $time);
   select_debug_module(`DBG_TOP_WISHBONE_DEBUG_MODULE);
-  
+
   /*
   // Test error conditions
-  #1000; 
+  #1000;
   $display("Testing error (size 0 WB burst write) at time %t", $time);
   do_module_burst_write(3'h1, 16'h0, 32'h0);  // 0-word write = error, ignored
-  #1000; 
+  #1000;
   $display("Testing error (size 0 WB burst read) at time %t", $time);
   do_module_burst_read(3'h1, 16'h0, 32'h0);  // 0-word read = error, ignored
-  
+
   // Test NOP (a zero in the MSB, then a NOP opcode)
   #1000;
   $display("Testing NOP at time %t", $time);
@@ -306,8 +306,8 @@ begin
     write_bit(`JTAG_TMS_bit);  // update_dr
     write_bit(3'h0);           // idle
     #1000;
-    */   
-    
+    */
+
     /*
     #1000;
      $display("Testing WB intreg select at time %t", $time);
@@ -315,16 +315,16 @@ begin
     #1000;
      select_module_internal_register(32'h0, 1);  // Really just a read, with discarded data
    #1000;
-    
-   // Reset the error bit    
+
+   // Reset the error bit
     write_module_internal_register(32'h0, 8'h1, 32'h1, 8'h1);  // idx, idxlen, data, datalen
    #1000;
-   
+
    // Read the error bit
    read_module_internal_register(8'd33, err_data);  // We assume the register is already selected
    #1000;
 */
-    
+
   /////////////////////////////////
   // Test 8-bit WB access
   failed = 0;
@@ -335,20 +335,20 @@ begin
   do_module_burst_read(3'h1, 16'd16, 32'h0);
   #1000;
    for(i = 0; i < 16; i = i+1) begin
-     if(static_data8[i] != input_data8[i]) begin 
+     if(static_data8[i] != input_data8[i]) begin
         failed = 1;
         $display("32-bit data mismatch at index %d, wrote 0x%x, read 0x%x", i, static_data8[i], input_data8[i]);
     end
   end
   if(!failed) $display("8-bit read/write OK!");
-  
+
    /* try it unaligned
   do_module_burst_write(3'h1, 16'd5, 32'h3);  // 3-bit word size (bytes), 16-bit word count, 32-bit start address
     #1000;
   do_module_burst_read(3'h1, 16'd4, 32'h4);
     #1000;
   */
-  
+
   /////////////////////////////////
   // Test 16-bit WB access
   failed = 0;
@@ -359,20 +359,20 @@ begin
   do_module_burst_read(3'h2, 16'd16, 32'h0);
   #1000;
    for(i = 0; i < 16; i = i+1) begin
-     if(static_data16[i] != input_data16[i]) begin 
+     if(static_data16[i] != input_data16[i]) begin
         failed = 1;
         $display("16-bit data mismatch at index %d, wrote 0x%x, read 0x%x", i, static_data16[i], input_data16[i]);
     end
   end
   if(!failed) $display("16-bit read/write OK!");
-  
+
    /* try it unaligned
   do_module_burst_write(3'h2, 16'd5, 32'h2);  // 3-bit word size (bytes), 16-bit word count, 32-bit start address
     #1000;
   do_module_burst_read(3'h2, 16'd4, 32'h4);
     #1000;
   */
-  
+
   ////////////////////////////////////
   // Test 32-bit WB access
   failed = 0;
@@ -383,20 +383,20 @@ begin
   do_module_burst_read(3'h4, 16'd16, 32'h0);
   #1000;
    for(i = 0; i < 16; i = i+1) begin
-     if(static_data32[i] != input_data32[i]) begin 
+     if(static_data32[i] != input_data32[i]) begin
         failed = 1;
         $display("32-bit data mismatch at index %d, wrote 0x%x, read 0x%x", i, static_data32[i], input_data32[i]);
     end
   end
   if(!failed) $display("32-bit read/write OK!");
-    
+
   /* Try another address
   do_module_burst_write(3'h4, 16'd16, 32'h200);  // 3-bit word size (bytes), 16-bit word count, 32-bit start address
     #1000;
   do_module_burst_read(3'h4, 16'd15, 32'h204);
     #1000;
   */
-  
+
   ////////////////////////////////
   // Test error register
   err_data = 33'h0;
@@ -408,7 +408,7 @@ begin
   $display("Error bit is %d, error address is %x", err_data[0], err_data>>1);
 
 `endif  // WB module supported
-  
+
 end
 
 task initialize_memory;
@@ -433,30 +433,30 @@ endtask
 // Top module
 tap_top  i_tap (
                 // JTAG pads
-                .tms_pad_i(jtag_tms_o), 
-                .tck_pad_i(jtag_tck_o), 
-                .trstn_pad_i(1'b1), 
-                .tdi_pad_i(jtag_tdo_o), 
-                .tdo_pad_o(jtag_tdi_i), 
+                .tms_pad_i(jtag_tms_o),
+                .tck_pad_i(jtag_tck_o),
+                .trstn_pad_i(1'b1),
+                .tdi_pad_i(jtag_tdo_o),
+                .tdo_pad_o(jtag_tdi_i),
                 .tdo_padoe_o(),
 
                 // TAP states
 				    .test_logic_reset_o(dbg_rst),
 				    .run_test_idle_o(),
                 .shift_dr_o(shift_dr),
-                .pause_dr_o(pause_dr), 
+                .pause_dr_o(pause_dr),
                 .update_dr_o(update_dr),
                 .capture_dr_o(capture_dr),
-                
+
                 // Select signals for boundary scan or mbist
-                .extest_select_o(), 
+                .extest_select_o(),
                 .sample_preload_select_o(),
                 .mbist_select_o(),
                 .debug_select_o(dbg_sel),
-                
+
                 // TDO signal that is connected to TDI of sub-modules.
-                .tdi_o(dbg_tdo), 
-                
+                .tdi_o(dbg_tdo),
+
                 // TDI signals from sub-modules
                 .debug_tdo_i(dbg_tdi),    // from debug module
                 .bs_chain_tdo_i(1'b0), // from Boundary Scan Chain
@@ -486,7 +486,7 @@ adbg_top i_dbg_module(
                 // WISHBONE common signals
                 ,
                 .wb_clk_i(wb_clk_i),
-                                                                                
+
                 // WISHBONE master interface
                 .wb_adr_o(wb_adr),
                 .wb_dat_o(wb_dat_m),
@@ -506,7 +506,7 @@ adbg_top i_dbg_module(
                 // CPU signals
                 ,
                 .cpu0_clk_i(cpu0_clk),
-                .cpu0_addr_o(cpu0_addr), 
+                .cpu0_addr_o(cpu0_addr),
                 .cpu0_data_i(cpu0_data_c),
                 .cpu0_data_o(cpu0_data_d),
                 .cpu0_bp_i(cpu0_bp),
@@ -520,8 +520,8 @@ adbg_top i_dbg_module(
                 `ifdef DBG_CPU1_SUPPORTED
                 // CPU signals
                 ,
-                .cpu1_clk_i(cpu1_clk), 
-                .cpu1_addr_o(cpu1_addr), 
+                .cpu1_clk_i(cpu1_clk),
+                .cpu1_addr_o(cpu1_addr),
                 .cpu1_data_i(cpu1_data_c),
                 .cpu1_data_o(cpu1_data_d),
                 .cpu1_bp_i(cpu1_bp),
@@ -539,11 +539,11 @@ adbg_top i_dbg_module(
 // The 'wishbone' may be just a p2p connection to a simple RAM
 /*
 onchip_ram_top i_ocram (
-   .wb_clk_i(wb_clk_i), 
+   .wb_clk_i(wb_clk_i),
    .wb_rst_i(wb_rst_i),
    .wb_dat_i(wb_dat_m),
    .wb_dat_o(wb_dat_s),
-   .wb_adr_i(wb_adr[11:0]), 
+   .wb_adr_i(wb_adr[11:0]),
    .wb_sel_i(wb_sel),
    .wb_we_i(wb_we),
    .wb_cyc_i(wb_cyc),
@@ -607,7 +607,7 @@ cpu_behavioral cpu1_i  (
                     .cpu_rst_o(cpu1_rst)
 );
 `endif
-   
+
 ///////////////////////////////////////////////////////////////////////////
 // Higher-level chain manipulation functions
 
@@ -638,7 +638,7 @@ reg [63:0] readdata;
 reg[31:0] idcode;
 begin
     set_ir(`IDCODE);
-    
+
     // Read the IDCODE in the DR
     write_bit(`JTAG_TMS_bit);  // select_dr_scan
     write_bit(3'h0);           // capture_ir
@@ -649,7 +649,7 @@ begin
     idcode = readdata[31:0];
     $display("Got TAP IDCODE 0x%x, expected 0x%x", idcode, `IDCODE_VALUE);
 end
-endtask;
+endtask
 
 task select_debug_module;
 input [1:0] moduleid;
@@ -661,9 +661,9 @@ begin
     jtag_write_stream({1'b1,moduleid}, 8'h3, 1);  // write data, exit_1
     write_bit(`JTAG_TMS_bit);  // update_dr
     write_bit(3'h0);           // idle
-    
+
     $display("Selecting module (%0x)", moduleid);
-    
+
     // Read back the status to make sure a valid chain is selected
     /* Pointless, the newly selected module would respond instead...
     write_bit(`JTAG_TMS_bit);  // select_dr_scan
@@ -672,7 +672,7 @@ begin
     read_write_bit(`JTAG_TMS_bit, validid);  // get data, exit_1
     write_bit(`JTAG_TMS_bit);  // update_dr
     write_bit(3'h0);           // idle
-    
+
     if(validid)   $display("Selected valid module (%0x)", moduleid);
     else          $display("Failed to select module (%0x)", moduleid);
     */
@@ -712,7 +712,7 @@ begin
     write_bit(3'h0);           // idle
 end
 endtask
-        
+
 
 task read_module_internal_register;  // We assume the register is already selected
     //input [31:0] regidx;
@@ -747,7 +747,7 @@ begin
     streamdata = streamdata | writedata;
     streamdata = streamdata | (regidx << datalen);
     streamdata = streamdata | (`DBG_WB_CMD_IREG_WR << (idxlen+datalen));
-    
+
     write_bit(`JTAG_TMS_bit);  // select_dr_scan
     write_bit(3'h0);           // capture_ir
     write_bit(3'h0);           // shift_ir
@@ -776,7 +776,7 @@ begin
     instream = 64'h0;
     word_size_bits = word_size_bytes << 3;
     crc_calc_i = 32'hffffffff;
-    
+
     // Send the command
     case (word_size_bytes)
        3'h1: opcode = `DBG_WB_CMD_BREAD8;
@@ -788,9 +788,9 @@ begin
            opcode = `DBG_WB_CMD_BREAD32;
           end
    endcase
-   
+
    send_module_burst_command(opcode,start_address, word_count);  // returns to state idle
-   
+
    // Get us back to shift_dr mode to read a burst
    write_bit(`JTAG_TMS_bit);  // select_dr_scan
    write_bit(3'h0);           // capture_ir
@@ -804,16 +804,16 @@ begin
          read_write_bit(3'h0, status);
          j = j + 1;
       end
-      
+
       if(j > 1) begin
          $display("Took %0d tries before good status bit during burst read", j);
       end
 `endif
-   
+
    // Now, repeat...
    for(i = 0; i < word_count; i=i+1) begin
-     
-`ifndef ADBG_USE_HISPEED     
+
+`ifndef ADBG_USE_HISPEED
       // Get 1 status bit, then word_size_bytes*8 bits
       status = 1'b0;
       j = 0;
@@ -821,12 +821,12 @@ begin
          read_write_bit(3'h0, status);
          j = j + 1;
       end
-      
+
       if(j > 1) begin
          $display("Took %0d tries before good status bit during burst read", j);
       end
 `endif
-  
+
      jtag_read_write_stream(64'h0, {2'h0,(word_size_bytes<<3)},0,instream);
      //$display("Read 0x%0x", instream[31:0]);
      compute_crc(crc_calc_i, instream[31:0], word_size_bits, crc_calc_o);
@@ -835,12 +835,12 @@ begin
      else if(word_size_bytes == 2) input_data16[i] = instream[15:0];
      else input_data32[i] = instream[31:0];
    end
-    
+
    // Read the data CRC from the debug module.
    jtag_read_write_stream(64'h0, 6'd32, 1, crc_read);
    if(crc_calc_o != crc_read) $display("CRC ERROR! Computed 0x%x, read CRC 0x%x", crc_calc_o, crc_read);
    else $display("CRC OK!");
-    
+
    // Finally, shift out 5 0's, to make the next command a NOP
    // Not necessary, debug unit won't latch a new opcode at the end of a burst
    //jtag_write_stream(64'h0, 8'h5, 1);
@@ -867,7 +867,7 @@ begin
     $display("Doing burst write, word size %d, word count %d, start address 0x%x", word_size_bytes, word_count, start_address);
     word_size_bits = word_size_bytes << 3;
     crc_calc_i = 32'hffffffff;
-    
+
     // Send the command
     case (word_size_bytes)
        3'h1: opcode = `DBG_WB_CMD_BWRITE8;
@@ -879,14 +879,14 @@ begin
            opcode = `DBG_WB_CMD_BWRITE32;
           end
    endcase
-   
+
    send_module_burst_command(opcode, start_address, word_count);  // returns to state idle
-   
+
    // Get us back to shift_dr mode to write a burst
    write_bit(`JTAG_TMS_bit);  // select_dr_scan
    write_bit(3'h0);           // capture_ir
    write_bit(3'h0);           // shift_ir
-   
+
 
    // Write a start bit (a 1) so it knows when to start counting
    write_bit(`JTAG_TDO_bit);
@@ -897,35 +897,35 @@ begin
       if(word_size_bytes == 4)      dataword = {32'h0, static_data32[i]};
       else if(word_size_bytes == 2) dataword = {48'h0, static_data16[i]};
       else                          dataword = {56'h0, static_data8[i]};
-      
-      
+
+
       jtag_write_stream(dataword, {2'h0,(word_size_bytes<<3)},0);
       compute_crc(crc_calc_i, dataword[31:0], word_size_bits, crc_calc_o);
       crc_calc_i = crc_calc_o;
-      
-      
+
+
 `ifndef ADBG_USE_HISPEED
       // Check if WB bus is ready
       // *** THIS WILL NOT WORK IF THERE IS MORE THAN 1 DEVICE IN THE JTAG CHAIN!!!
       status = 1'b0;
       read_write_bit(3'h0, status);
-      
+
       if(!status) begin
          $display("Bad status bit during burst write, index %d", i);
       end
-`endif      
-  
+`endif
+
      //$display("Wrote 0x%0x", dataword);
    end
-    
+
    // Send the CRC we computed
    jtag_write_stream(crc_calc_o, 6'd32,0);
-   
+
    // Read the 'CRC match' bit, and go to exit1_dr
    read_write_bit(`JTAG_TMS_bit, crc_match);
    if(!crc_match) $display("CRC ERROR! match bit after write is %d (computed CRC 0x%x)", crc_match, crc_calc_o);
    else $display("CRC OK!");
-    
+
    // Finally, shift out 5 0's, to make the next command a NOP
    // Not necessary, module will not latch new opcode during burst
    //jtag_write_stream(64'h0, 8'h5, 1);
@@ -979,12 +979,12 @@ begin
        bits = databit << `JTAG_TDO;
        write_bit(bits);
    end
-   
+
    databit = (stream >> i) & 1'h1;
    bits = databit << `JTAG_TDO;
    if(set_last_bit) bits = (bits | `JTAG_TMS_bit);
    write_bit(bits);
-    
+
 end
 endtask
 
@@ -1006,7 +1006,7 @@ begin
        read_write_bit(bits, inbit);
        instream = (instream | (inbit << i));
    end
-   
+
    databit = (stream >> i) & 1'h1;
    bits = databit << `JTAG_TDO;
    if(set_last_bit) bits = (bits | `JTAG_TMS_bit);
@@ -1021,15 +1021,15 @@ endtask
 task write_bit;
    input [2:0] bitvals;
    begin
-       
+
    // Set data
    jtag_out(bitvals & ~(`JTAG_TCK_bit));
    `wait_jtag_period;
-   
+
    // Raise clock
    jtag_out(bitvals | `JTAG_TCK_bit);
    `wait_jtag_period;
-   
+
    // drop clock (making output available in the SHIFT_xR states)
    jtag_out(bitvals & ~(`JTAG_TCK_bit));
    `wait_jtag_period;
@@ -1040,18 +1040,18 @@ task read_write_bit;
    input [2:0] bitvals;
    output l_tdi_val;
    begin
-       
+
    // read bit state
    l_tdi_val <= jtag_tdi_i;
-   
+
    // Set data
    jtag_out(bitvals & ~(`JTAG_TCK_bit));
    `wait_jtag_period;
-   
+
    // Raise clock
    jtag_out(bitvals | `JTAG_TCK_bit);
    `wait_jtag_period;
-   
+
    // drop clock (making output available in the SHIFT_xR states)
    jtag_out(bitvals & ~(`JTAG_TCK_bit));
    `wait_jtag_period;
@@ -1065,9 +1065,9 @@ task jtag_out;
   input   [2:0]   bitvals;
   begin
 
-   jtag_tck_o <= bitvals[`JTAG_TCK]; 
-   jtag_tms_o <= bitvals[`JTAG_TMS]; 
-   jtag_tdo_o <= bitvals[`JTAG_TDO]; 
+   jtag_tck_o <= bitvals[`JTAG_TCK];
+   jtag_tms_o <= bitvals[`JTAG_TMS];
+   jtag_tdo_o <= bitvals[`JTAG_TDO];
    end
 endtask
 
@@ -1077,9 +1077,9 @@ task jtag_inout;
   output l_tdi_val;
   begin
 
-   jtag_tck_o <= bitvals[`JTAG_TCK]; 
-   jtag_tms_o <= bitvals[`JTAG_TMS]; 
-   jtag_tdo_o <= bitvals[`JTAG_TDO]; 
+   jtag_tck_o <= bitvals[`JTAG_TCK];
+   jtag_tms_o <= bitvals[`JTAG_TMS];
+   jtag_tdo_o <= bitvals[`JTAG_TDO];
 
    l_tdi_val <= jtag_tdi_i;
    end
