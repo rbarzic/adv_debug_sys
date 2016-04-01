@@ -288,29 +288,29 @@ module adbg_jsp_biu
 	case (rd_fsm_state)
           `STATE_RD_IDLE:
             begin
-               if(wb_wr) next_rd_fsm_state <= `STATE_RD_PUSH;
-               else if (pop) next_rd_fsm_state <= `STATE_RD_POP;
-               else next_rd_fsm_state <= `STATE_RD_IDLE;
+               if(wb_wr) next_rd_fsm_state = `STATE_RD_PUSH;
+               else if (pop) next_rd_fsm_state = `STATE_RD_POP;
+               else next_rd_fsm_state = `STATE_RD_IDLE;
             end
           `STATE_RD_PUSH:
             begin
-               if(rcz) next_rd_fsm_state <= `STATE_RD_LATCH;  // putting first item in fifo, move to rdata in state LATCH
-               else if(pop) next_rd_fsm_state <= `STATE_RD_POP;
-	       else next_rd_fsm_state <= `STATE_RD_IDLE;
+               if(rcz) next_rd_fsm_state = `STATE_RD_LATCH;  // putting first item in fifo, move to rdata in state LATCH
+               else if(pop) next_rd_fsm_state = `STATE_RD_POP;
+	       else next_rd_fsm_state = `STATE_RD_IDLE;
             end
 	  `STATE_RD_POP:
 	    begin
-	       next_rd_fsm_state <= `STATE_RD_LATCH; // new data at FIFO head, move to rdata in state LATCH
+	       next_rd_fsm_state = `STATE_RD_LATCH; // new data at FIFO head, move to rdata in state LATCH
 	    end
 	  `STATE_RD_LATCH:
 	    begin
-	       if(wb_wr) next_rd_fsm_state <= `STATE_RD_PUSH;
-	       else if(pop) next_rd_fsm_state <= `STATE_RD_POP;
-	       else next_rd_fsm_state <= `STATE_RD_IDLE;
+	       if(wb_wr) next_rd_fsm_state = `STATE_RD_PUSH;
+	       else if(pop) next_rd_fsm_state = `STATE_RD_POP;
+	       else next_rd_fsm_state = `STATE_RD_IDLE;
 	    end
 	  default:
 	    begin
-	       next_rd_fsm_state <= `STATE_RD_IDLE;
+	       next_rd_fsm_state = `STATE_RD_IDLE;
 	    end
 	endcase
      end
@@ -318,31 +318,31 @@ module adbg_jsp_biu
    // Outputs of state machine (combinatorial)
    always @ (rd_fsm_state)
      begin
-	ren_rst <= 1'b0;
-	rpp <= 1'b0;
-	r_fifo_en <= 1'b0;
-	rdata_en <= 1'b0;
-	r_wb_ack <= 1'b0;
+	ren_rst = 1'b0;
+	rpp = 1'b0;
+	r_fifo_en = 1'b0;
+	rdata_en = 1'b0;
+	r_wb_ack = 1'b0;
 
 	case (rd_fsm_state)
           `STATE_RD_IDLE:;
 
           `STATE_RD_PUSH:
             begin
-	       rpp <= 1'b1;
-	       r_fifo_en <= 1'b1;
-	       r_wb_ack <= 1'b1;
+	       rpp = 1'b1;
+	       r_fifo_en = 1'b1;
+	       r_wb_ack = 1'b1;
             end
 
 	  `STATE_RD_POP:
 	    begin
-	       ren_rst <= 1'b1;
-	       r_fifo_en <= 1'b1;
+	       ren_rst = 1'b1;
+	       r_fifo_en = 1'b1;
 	    end
 
 	  `STATE_RD_LATCH:
 	    begin
-	       rdata_en <= 1'b1;
+	       rdata_en = 1'b1;
 	    end
 	endcase
      end
@@ -400,6 +400,7 @@ module adbg_jsp_biu
    // Outputs of state machine (combinatorial)
    always @ (wr_fsm_state)
      begin
+
 	wda_rst = 1'b0;
 	wpp = 1'b0;
 	w_fifo_en = 1'b0;
@@ -507,6 +508,7 @@ module adbg_jsp_biu
 
    always @ (thr_int_arm or rd_fifo_not_full or wr_fifo_not_empty)
      begin
+
 	if(wr_fifo_not_empty) iir_gen = 3'b100;
 	else if(thr_int_arm & rd_fifo_not_full) iir_gen = 3'b010;
 	else iir_gen = 3'b001;

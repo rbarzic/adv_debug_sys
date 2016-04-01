@@ -190,8 +190,13 @@ module adbg_wb_biu
                if(addr_i[1]) be_dec = 4'b1100;
                else          be_dec = 4'b0011;
             end
+<<<<<<< HEAD
 	  3'h4: be_dec = 4'b1111;
 	  default: be_dec = 4'b1111;  // default to 32-bit access
+=======
+	  3'h4: be_dec <= 4'b1111;
+	  default: be_dec <= 4'b1111;  // default to 32-bit access
+>>>>>>> ce21270632ab3485c34e28c57e376c4795933eae
 	endcase
      end
  `else
@@ -395,6 +400,7 @@ module adbg_wb_biu
    // Outputs of state machine (combinatorial)
    always @ (wb_fsm_state or start_toggle or wb_ack_i or wb_err_i or wr_reg)
      begin
+
 	rdy_sync_en = 1'b0;
 	err_en = 1'b0;
 	data_o_en = 1'b0;
