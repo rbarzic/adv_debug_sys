@@ -65,7 +65,7 @@ module adbg_top(
                 ,
                 wb_clk_i,
                 wb_rst_i,
-                
+
                 // WISHBONE master interface
                 wb_adr_o,
                 wb_dat_o,
@@ -84,9 +84,9 @@ module adbg_top(
                 `ifdef DBG_CPU0_SUPPORTED
                 // CPU signals
                 ,
-                cpu0_clk_i, 
-                cpu0_addr_o, 
-                cpu0_data_i, 
+                cpu0_clk_i,
+                cpu0_addr_o,
+                cpu0_data_i,
                 cpu0_data_o,
                 cpu0_bp_i,
                 cpu0_stall_o,
@@ -99,9 +99,9 @@ module adbg_top(
                 `ifdef DBG_CPU1_SUPPORTED
                 // CPU signals
                 ,
-                cpu1_clk_i, 
-                cpu1_addr_o, 
-                cpu1_data_i, 
+                cpu1_clk_i,
+                cpu1_addr_o,
+                cpu1_data_i,
                 cpu1_data_o,
                 cpu1_bp_i,
                 cpu1_stall_o,
@@ -110,14 +110,14 @@ module adbg_top(
                 cpu1_ack_i,
                 cpu1_rst_o
                 `endif
-		
+
                 `ifdef DBG_JSP_SUPPORTED
                 ,
 		`ifndef DBG_WISHBONE_SUPPORTED
 		wb_clk_i,
 		wb_rst_i,
 		`endif
-		
+
                 // WISHBONE target interface
                 wb_jsp_adr_i,
                 wb_jsp_dat_o,
@@ -133,7 +133,7 @@ module adbg_top(
                 wb_jsp_bte_i,
 		int_o
                 `endif
-		
+
 		);
 
 
@@ -171,9 +171,9 @@ module adbg_top(
 
 `ifdef DBG_CPU0_SUPPORTED
    // CPU signals
-   input         cpu0_clk_i; 
-   output [31:0] cpu0_addr_o; 
-   input [31:0]  cpu0_data_i; 
+   input         cpu0_clk_i;
+   output [31:0] cpu0_addr_o;
+   input [31:0]  cpu0_data_i;
    output [31:0] cpu0_data_o;
    input         cpu0_bp_i;
    output        cpu0_stall_o;
@@ -184,9 +184,9 @@ module adbg_top(
 `endif
 
 `ifdef DBG_CPU1_SUPPORTED
-   input         cpu1_clk_i; 
-   output [31:0] cpu1_addr_o; 
-   input [31:0]  cpu1_data_i; 
+   input         cpu1_clk_i;
+   output [31:0] cpu1_addr_o;
+   input [31:0]  cpu1_data_i;
    output [31:0] cpu1_data_o;
    input         cpu1_bp_i;
    output        cpu1_stall_o;
@@ -215,7 +215,7 @@ module adbg_top(
    input [1:0]   wb_jsp_bte_i;
    output 	 int_o;
 `endif
-   
+
    reg 		 tdo_o;
    wire 	 tdo_wb;
    wire 	 tdo_cpu0;
@@ -255,8 +255,8 @@ end
 
 always @ (module_id_reg)
 begin
-	module_selects <= `DBG_TOP_MODULE_ID_LENGTH'h0;
-	module_selects[module_id_reg] <= 1'b1;
+	module_selects = `DBG_TOP_MODULE_ID_LENGTH'h0;
+	module_selects[module_id_reg] = 1'b1;
 end
 
 ///////////////////////////////////////////////
@@ -296,7 +296,7 @@ adbg_wb_module i_dbg_wb (
                   .wb_clk_i         (wb_clk_i),
 
                   // WISHBONE master interface
-                  .wb_adr_o         (wb_adr_o), 
+                  .wb_adr_o         (wb_adr_o),
                   .wb_dat_o         (wb_dat_o),
                   .wb_dat_i         (wb_dat_i),
                   .wb_cyc_o         (wb_cyc_o),
@@ -334,9 +334,9 @@ adbg_or1k_module i_dbg_cpu_or1k (
                   .rst_i            (rst_i),
 
                   // CPU signals
-                  .cpu_clk_i        (cpu0_clk_i), 
-                  .cpu_addr_o       (cpu0_addr_o), 
-                  .cpu_data_i       (cpu0_data_i), 
+                  .cpu_clk_i        (cpu0_clk_i),
+                  .cpu_addr_o       (cpu0_addr_o),
+                  .cpu_data_i       (cpu0_data_i),
                   .cpu_data_o       (cpu0_data_o),
                   .cpu_bp_i         (cpu0_bp_i),
                   .cpu_stall_o      (cpu0_stall_o),
@@ -359,7 +359,7 @@ adbg_or1k_module i_dbg_cpu_2 (
                   .tck_i            (tck_i),
                   .module_tdo_o     (tdo_cpu1),
                   .tdi_i            (tdi_i),
-                  
+
                   // TAP states
                   .capture_dr_i     (capture_dr_i),
                   .shift_dr_i       (shift_dr_i),
@@ -371,9 +371,9 @@ adbg_or1k_module i_dbg_cpu_2 (
                   .rst_i            (rst_i),
 
                   // CPU signals
-                  .cpu_clk_i        (cpu1_clk_i), 
-                  .cpu_addr_o       (cpu1_addr_o), 
-                  .cpu_data_i       (cpu1_data_i), 
+                  .cpu_clk_i        (cpu1_clk_i),
+                  .cpu_addr_o       (cpu1_addr_o),
+                  .cpu_data_i       (cpu1_data_i),
                   .cpu_data_o       (cpu1_data_o),
                   .cpu_bp_i         (cpu1_bp_i),
                   .cpu_stall_o      (cpu1_stall_o),
@@ -407,9 +407,9 @@ adbg_jsp_module i_dbg_jsp (
                   // WISHBONE common signals
                   .wb_clk_i         (wb_clk_i),
                   .wb_rst_i         (wb_rst_i),
-                  
+
                   // WISHBONE master interface
-                  .wb_adr_i         (wb_jsp_adr_i), 
+                  .wb_adr_i         (wb_jsp_adr_i),
                   .wb_dat_o         (wb_jsp_dat_o),
                   .wb_dat_i         (wb_jsp_dat_i),
                   .wb_cyc_i         (wb_jsp_cyc_i),
@@ -423,12 +423,12 @@ adbg_jsp_module i_dbg_jsp (
                   .wb_bte_i         (wb_jsp_bte_i),
 		  .int_o            (int_o)
             );
-   
+
 `else
    assign tdo_jsp = 1'b0;
    assign module_inhibit[`DBG_TOP_JSP_DEBUG_MODULE] = 1'b0;
-`endif   
-   
+`endif
+
 assign select_inhibit = |module_inhibit;
 
 /////////////////////////////////////////////////
@@ -437,11 +437,11 @@ assign select_inhibit = |module_inhibit;
 always @ (module_id_reg or tdo_wb or tdo_cpu0 or tdo_cpu1 or tdo_jsp)
 begin
    case (module_id_reg)
-     `DBG_TOP_WISHBONE_DEBUG_MODULE: tdo_o <= tdo_wb;
-     `DBG_TOP_CPU0_DEBUG_MODULE:     tdo_o <= tdo_cpu0;
-     `DBG_TOP_CPU1_DEBUG_MODULE:     tdo_o <= tdo_cpu1;
-     `DBG_TOP_JSP_DEBUG_MODULE:      tdo_o <= tdo_jsp;
-       default:                        tdo_o <= 1'b0;
+     `DBG_TOP_WISHBONE_DEBUG_MODULE: tdo_o = tdo_wb;
+     `DBG_TOP_CPU0_DEBUG_MODULE:     tdo_o = tdo_cpu0;
+     `DBG_TOP_CPU1_DEBUG_MODULE:     tdo_o = tdo_cpu1;
+     `DBG_TOP_JSP_DEBUG_MODULE:      tdo_o = tdo_jsp;
+       default:                        tdo_o = 1'b0;
    endcase
 end
 

@@ -24,7 +24,7 @@
 //// Public License as published by the Free Software Foundation; ////
 //// either version 2.1 of the License, or (at your option) any   ////
 //// later version.                                               ////
-////                                                              ////
+//// ////
 //// This source is distributed in the hope that it will be       ////
 //// useful, but WITHOUT ANY WARRANTY; without even the implied   ////
 //// warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      ////
@@ -56,8 +56,8 @@
 // Changed names of all files and modules (prefixed an a, for advanced).  Cleanup, indenting.  No functional changes.
 //
 // Revision 1.4  2008/07/08 19:04:04  Nathan
-// Many small changes to eliminate compiler warnings, no functional changes.  
-// System will now pass SRAM and CPU self-tests on Altera FPGA using 
+// Many small changes to eliminate compiler warnings, no functional changes.
+// System will now pass SRAM and CPU self-tests on Altera FPGA using
 // altera_virtual_jtag TAP.
 //
 
@@ -180,40 +180,40 @@ module adbg_wb_biu
 	case (word_size_i)
 	  3'h1:
             begin
-               if(addr_i[1:0] == 2'b00) be_dec <= 4'b0001;
-               else if(addr_i[1:0] == 2'b01) be_dec <= 4'b0010;
-               else if(addr_i[1:0] == 2'b10) be_dec <= 4'b0100;
-               else be_dec <= 4'b1000;
+               if(addr_i[1:0] == 2'b00) be_dec = 4'b0001;
+               else if(addr_i[1:0] == 2'b01) be_dec = 4'b0010;
+               else if(addr_i[1:0] == 2'b10) be_dec = 4'b0100;
+               else be_dec = 4'b1000;
             end
 	  3'h2:
             begin
-               if(addr_i[1]) be_dec <= 4'b1100;
-               else          be_dec <= 4'b0011;
+               if(addr_i[1]) be_dec = 4'b1100;
+               else          be_dec = 4'b0011;
             end
-	  3'h4: be_dec <= 4'b1111;
-	  default: be_dec <= 4'b1111;  // default to 32-bit access
-	endcase 
+	  3'h4: be_dec = 4'b1111;
+	  default: be_dec = 4'b1111;  // default to 32-bit access
+	endcase
      end
  `else
-   // This is for a BIG ENDIAN CPU...lowest-addressed byte is 
+   // This is for a BIG ENDIAN CPU...lowest-addressed byte is
    // the 8 most significant bits of the 32-bit WB bus.
    always @ (word_size_i or addr_i)
      begin
 	case (word_size_i)
 	  3'h1:
             begin
-               if(addr_i[1:0] == 2'b00) be_dec <= 4'b1000;
-               else if(addr_i[1:0] == 2'b01) be_dec <= 4'b0100;
-               else if(addr_i[1:0] == 2'b10) be_dec <= 4'b0010;
-               else be_dec <= 4'b0001;
+               if(addr_i[1:0] == 2'b00) be_dec = 4'b1000;
+               else if(addr_i[1:0] == 2'b01) be_dec = 4'b0100;
+               else if(addr_i[1:0] == 2'b10) be_dec = 4'b0010;
+               else be_dec = 4'b0001;
             end
 	  3'h2:
             begin
-               if(addr_i[1] == 1'b1) be_dec <= 4'b0011;
-               else                  be_dec <= 4'b1100;
+               if(addr_i[1] == 1'b1) be_dec = 4'b0011;
+               else                  be_dec = 4'b1100;
             end
-	  3'h4: be_dec <= 4'b1111;
-	  default: be_dec <= 4'b1111;  // default to 32-bit access
+	  3'h4: be_dec = 4'b1111;
+	  default: be_dec = 4'b1111;  // default to 32-bit access
 	endcase
      end
  `endif
@@ -226,14 +226,14 @@ module adbg_wb_biu
    always @ (be_dec or data_i)
      begin
 	case (be_dec)
-	  4'b1111: swapped_data_i <= data_i;
-	  4'b0011: swapped_data_i <= {16'h0,data_i[31:16]};
-	  4'b1100: swapped_data_i <= data_i;
-	  4'b0001: swapped_data_i <= {24'h0, data_i[31:24]};
-	  4'b0010: swapped_data_i <= {16'h0, data_i[31:24], 8'h0};
-	  4'b0100: swapped_data_i <= {8'h0, data_i[31:24], 16'h0};
-	  4'b1000: swapped_data_i <= {data_i[31:24], 24'h0};
-	  default: swapped_data_i <= data_i;  // Shouldn't be possible
+	  4'b1111: swapped_data_i = data_i;
+	  4'b0011: swapped_data_i = {16'h0,data_i[31:16]};
+	  4'b1100: swapped_data_i = data_i;
+	  4'b0001: swapped_data_i = {24'h0, data_i[31:24]};
+	  4'b0010: swapped_data_i = {16'h0, data_i[31:24], 8'h0};
+	  4'b0100: swapped_data_i = {8'h0, data_i[31:24], 16'h0};
+	  4'b1000: swapped_data_i = {data_i[31:24], 24'h0};
+	  default: swapped_data_i = data_i;  // Shouldn't be possible
 	endcase
      end
 
@@ -252,7 +252,7 @@ module adbg_wb_biu
 	     addr_reg <= addr_i;
 	     if(!rd_wrn_i) data_in_reg <= swapped_data_i;
 	     wr_reg <= ~rd_wrn_i;
-	  end 
+	  end
      end
 
    // Create toggle-active strobe signal for clock sync.  This will start a transaction
@@ -261,7 +261,7 @@ module adbg_wb_biu
      begin
 	if(rst_i) str_sync <= 1'b0;
 	else if(strobe_i && rdy_o) str_sync <= ~str_sync;
-     end 
+     end
 
    // Create rdy_o output.  Set on reset, clear on strobe (if set), set on input toggle
    always @ (posedge tck_i or posedge rst_i)
@@ -270,9 +270,9 @@ module adbg_wb_biu
            rdy_sync_tff1 <= 1'b0;
            rdy_sync_tff2 <= 1'b0;
            rdy_sync_tff2q <= 1'b0;
-           rdy_o <= 1'b1; 
+           rdy_o <= 1'b1;
 	end
-	else begin  
+	else begin
 	   rdy_sync_tff1 <= rdy_sync;       // Synchronize the ready signal across clock domains
 	   rdy_sync_tff2 <= rdy_sync_tff1;
 	   rdy_sync_tff2q <= rdy_sync_tff2;  // used to detect toggles
@@ -281,7 +281,7 @@ module adbg_wb_biu
 	   else if(rdy_sync_tff2 != rdy_sync_tff2q) rdy_o <= 1'b1;
 	end
 
-     end 
+     end
 
    //////////////////////////////////////////////////////////
    // Direct assignments, unsynchronized
@@ -307,7 +307,7 @@ module adbg_wb_biu
 	     if(rst_i) begin
 		str_sync_wbff1 <= 1'b0;
 		str_sync_wbff2 <= 1'b0;
-		str_sync_wbff2q <= 1'b0;      
+		str_sync_wbff2q <= 1'b0;
 	     end
 	     else begin
 		str_sync_wbff1 <= str_sync;
@@ -322,7 +322,7 @@ module adbg_wb_biu
    always @ (posedge wb_clk_i or posedge rst_i)
      begin
 	if(rst_i) err_reg <= 1'b0;
-	else if(err_en) err_reg <= wb_err_i; 
+	else if(err_en) err_reg <= wb_err_i;
      end
 
    // Byte- or word-swap the WB->dbg data, as necessary (combinatorial)
@@ -331,14 +331,14 @@ module adbg_wb_biu
    always @ (sel_reg or wb_dat_i)
      begin
 	case (sel_reg)
-	  4'b1111: swapped_data_out <= wb_dat_i;
-	  4'b0011: swapped_data_out <= wb_dat_i;
-	  4'b1100: swapped_data_out <= {16'h0, wb_dat_i[31:16]};
-	  4'b0001: swapped_data_out <= wb_dat_i;
-	  4'b0010: swapped_data_out <= {24'h0, wb_dat_i[15:8]};
-	  4'b0100: swapped_data_out <= {16'h0, wb_dat_i[31:16]};
-	  4'b1000: swapped_data_out <= {24'h0, wb_dat_i[31:24]};
-	  default: swapped_data_out <= wb_dat_i;  // Shouldn't be possible
+	  4'b1111: swapped_data_out = wb_dat_i;
+	  4'b0011: swapped_data_out = wb_dat_i;
+	  4'b1100: swapped_data_out = {16'h0, wb_dat_i[31:16]};
+	  4'b0001: swapped_data_out = wb_dat_i;
+	  4'b0010: swapped_data_out = {24'h0, wb_dat_i[15:8]};
+	  4'b0100: swapped_data_out = {16'h0, wb_dat_i[31:16]};
+	  4'b1000: swapped_data_out = {24'h0, wb_dat_i[31:24]};
+	  default: swapped_data_out = wb_dat_i;  // Shouldn't be possible
 	endcase
      end
 
@@ -354,7 +354,7 @@ module adbg_wb_biu
      begin
 	if(rst_i) rdy_sync <= 1'b0;
 	else if(rdy_sync_en) rdy_sync <= ~rdy_sync;
-     end 
+     end
 
    /////////////////////////////////////////////////////
    // Small state machine to create WB accesses
@@ -372,7 +372,7 @@ module adbg_wb_biu
    always @ (posedge wb_clk_i or posedge rst_i)
      begin
 	if(rst_i) wb_fsm_state <= `STATE_IDLE;
-	else wb_fsm_state <= next_fsm_state; 
+	else wb_fsm_state <= next_fsm_state;
      end
 
    // Determination of next state (combinatorial)
@@ -381,13 +381,13 @@ module adbg_wb_biu
 	case (wb_fsm_state)
           `STATE_IDLE:
             begin
-               if(start_toggle && !(wb_ack_i || wb_err_i)) next_fsm_state <= `STATE_TRANSFER;  // Don't go to next state for 1-cycle transfer
-               else next_fsm_state <= `STATE_IDLE;
+               if(start_toggle && !(wb_ack_i || wb_err_i)) next_fsm_state = `STATE_TRANSFER;  // Don't go to next state for 1-cycle transfer
+               else next_fsm_state = `STATE_IDLE;
             end
           `STATE_TRANSFER:
             begin
-               if(wb_ack_i || wb_err_i) next_fsm_state <= `STATE_IDLE;
-               else next_fsm_state <= `STATE_TRANSFER;
+               if(wb_ack_i || wb_err_i) next_fsm_state = `STATE_IDLE;
+               else next_fsm_state = `STATE_TRANSFER;
             end
 	endcase
      end
@@ -395,41 +395,41 @@ module adbg_wb_biu
    // Outputs of state machine (combinatorial)
    always @ (wb_fsm_state or start_toggle or wb_ack_i or wb_err_i or wr_reg)
      begin
-	rdy_sync_en <= 1'b0;
-	err_en <= 1'b0;
-	data_o_en <= 1'b0;
-	wb_cyc_o <= 1'b0;
-	wb_stb_o <= 1'b0;
-	
+	rdy_sync_en = 1'b0;
+	err_en = 1'b0;
+	data_o_en = 1'b0;
+	wb_cyc_o = 1'b0;
+	wb_stb_o = 1'b0;
+
 	case (wb_fsm_state)
           `STATE_IDLE:
             begin
                if(start_toggle) begin
-		  wb_cyc_o <= 1'b1;
-		  wb_stb_o <= 1'b1;
+		  wb_cyc_o = 1'b1;
+		  wb_stb_o = 1'b1;
 		  if(wb_ack_i || wb_err_i) begin
-                     err_en <= 1'b1;
-                     rdy_sync_en <= 1'b1;
+                     err_en = 1'b1;
+                     rdy_sync_en = 1'b1;
 		  end
-		  
+
 		  if (wb_ack_i && !wr_reg) begin
-                     data_o_en <= 1'b1;
+                     data_o_en = 1'b1;
 		  end
                end
             end
 
           `STATE_TRANSFER:
             begin
-               wb_cyc_o <= 1'b1;
-               wb_stb_o <= 1'b1;
+               wb_cyc_o = 1'b1;
+               wb_stb_o = 1'b1;
                if(wb_ack_i) begin
-                  err_en <= 1'b1;
-                  data_o_en <= 1'b1;
-                  rdy_sync_en <= 1'b1;
+                  err_en = 1'b1;
+                  data_o_en = 1'b1;
+                  rdy_sync_en = 1'b1;
                end
                else if (wb_err_i) begin
-                  err_en <= 1'b1;
-                  rdy_sync_en <= 1'b1;
+                  err_en = 1'b1;
+                  rdy_sync_en = 1'b1;
                end
             end
 	endcase
@@ -437,4 +437,3 @@ module adbg_wb_biu
      end
 
 endmodule
-

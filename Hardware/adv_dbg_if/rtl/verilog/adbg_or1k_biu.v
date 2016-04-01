@@ -50,8 +50,8 @@
 // Changed names of all files and modules (prefixed an a, for advanced).  Cleanup, indenting.  No functional changes.
 //
 // Revision 1.5  2008/07/08 19:04:03  Nathan
-// Many small changes to eliminate compiler warnings, no functional 
-// changes.  System will now pass SRAM and CPU self-tests on Altera 
+// Many small changes to eliminate compiler warnings, no functional
+// changes.  System will now pass SRAM and CPU self-tests on Altera
 // FPGA using altera_virtual_jtag TAP.
 //
 
@@ -149,7 +149,7 @@ module adbg_or1k_biu
 	     addr_reg <= addr_i;
 	     if(!rd_wrn_i) data_in_reg <= data_i;
 	     wr_reg <= ~rd_wrn_i;
-	  end 
+	  end
      end
 
    // Create toggle-active strobe signal for clock sync.  This will start a transaction
@@ -158,7 +158,7 @@ module adbg_or1k_biu
      begin
 	if(rst_i) str_sync <= 1'b0;
 	else if(strobe_i && rdy_o) str_sync <= ~str_sync;
-     end 
+     end
 
    // Create rdy_o output.  Set on reset, clear on strobe (if set), set on input toggle
    always @ (posedge tck_i or posedge rst_i)
@@ -167,9 +167,9 @@ module adbg_or1k_biu
            rdy_sync_tff1 <= 1'b0;
            rdy_sync_tff2 <= 1'b0;
            rdy_sync_tff2q <= 1'b0;
-           rdy_o <= 1'b1; 
+           rdy_o <= 1'b1;
 	end
-	else begin  
+	else begin
 	   rdy_sync_tff1 <= rdy_sync;       // Synchronize the ready signal across clock domains
 	   rdy_sync_tff2 <= rdy_sync_tff1;
 	   rdy_sync_tff2q <= rdy_sync_tff2;  // used to detect toggles
@@ -178,7 +178,7 @@ module adbg_or1k_biu
 	   else if(rdy_sync_tff2 != rdy_sync_tff2q) rdy_o <= 1'b1;
 	end
 
-     end 
+     end
 
    //////////////////////////////////////////////////////////
    // Direct assignments, unsynchronized
@@ -199,7 +199,7 @@ module adbg_or1k_biu
 	     if(rst_i) begin
 		str_sync_wbff1 <= 1'b0;
 		str_sync_wbff2 <= 1'b0;
-		str_sync_wbff2q <= 1'b0;      
+		str_sync_wbff2q <= 1'b0;
 	     end
 	     else begin
 		str_sync_wbff1 <= str_sync;
@@ -223,7 +223,7 @@ module adbg_or1k_biu
      begin
 	if(rst_i) rdy_sync <= 1'b0;
 	else if(rdy_sync_en) rdy_sync <= ~rdy_sync;
-     end 
+     end
 
    /////////////////////////////////////////////////////
    // Small state machine to create OR1K SPR bus accesses
@@ -241,7 +241,7 @@ module adbg_or1k_biu
    always @ (posedge cpu_clk_i or posedge rst_i)
      begin
 	if(rst_i) cpu_fsm_state <= `STATE_IDLE;
-	else cpu_fsm_state <= next_fsm_state; 
+	else cpu_fsm_state <= next_fsm_state;
      end
 
    // Determination of next state (combinatorial)
@@ -250,13 +250,13 @@ module adbg_or1k_biu
 	case (cpu_fsm_state)
           `STATE_IDLE:
             begin
-               if(start_toggle && !cpu_ack_i) next_fsm_state <= `STATE_TRANSFER;  // Don't go to next state for 1-cycle transfer
-               else next_fsm_state <= `STATE_IDLE;
+               if(start_toggle && !cpu_ack_i) next_fsm_state = `STATE_TRANSFER;  // Don't go to next state for 1-cycle transfer
+               else next_fsm_state = `STATE_IDLE;
             end
           `STATE_TRANSFER:
             begin
-               if(cpu_ack_i) next_fsm_state <= `STATE_IDLE;
-               else next_fsm_state <= `STATE_TRANSFER;
+               if(cpu_ack_i) next_fsm_state = `STATE_IDLE;
+               else next_fsm_state = `STATE_TRANSFER;
             end
 	endcase
      end
@@ -264,31 +264,31 @@ module adbg_or1k_biu
    // Outputs of state machine (combinatorial)
    always @ (cpu_fsm_state or start_toggle or cpu_ack_i or wr_reg)
      begin
-	rdy_sync_en <= 1'b0;
-	data_o_en <= 1'b0;
-	cpu_stb_o <= 1'b0;
-	
+	rdy_sync_en = 1'b0;
+	data_o_en = 1'b0;
+	cpu_stb_o = 1'b0;
+
 	case (cpu_fsm_state)
           `STATE_IDLE:
             begin
                if(start_toggle) begin
-		  cpu_stb_o <= 1'b1;
+		  cpu_stb_o = 1'b1;
 		  if(cpu_ack_i) begin
-                     rdy_sync_en <= 1'b1;
+                     rdy_sync_en = 1'b1;
 		  end
-		  
+
 		  if (cpu_ack_i && !wr_reg) begin  // latch read data
-                     data_o_en <= 1'b1;
+                     data_o_en = 1'b1;
 		  end
                end
             end
 
           `STATE_TRANSFER:
             begin
-               cpu_stb_o <= 1'b1;  // OR1K behavioral model needs this.  OR1200 should be indifferent.
+               cpu_stb_o = 1'b1;  // OR1K behavioral model needs this.  OR1200 should be indifferent.
                if(cpu_ack_i) begin
-                  data_o_en <= 1'b1;
-                  rdy_sync_en <= 1'b1;
+                  data_o_en = 1'b1;
+                  rdy_sync_en = 1'b1;
                end
             end
 	endcase
@@ -296,4 +296,3 @@ module adbg_or1k_biu
      end
 
 endmodule
-
