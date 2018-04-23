@@ -60,6 +60,7 @@
 `include "adbg_defines.v"
 `include "adbg_wb_defines.v"
 
+
 // Top module
 module adbg_wb_module (
                        // JTAG signals
@@ -85,6 +86,9 @@ module adbg_wb_module (
                        wb_we_o, wb_ack_i, wb_cab_o, wb_err_i, wb_cti_o, wb_bte_o
 
 		       );
+
+   parameter LIB = "undef";
+
 
    // JTAG signals
    input         tck_i;
@@ -401,7 +405,20 @@ module adbg_wb_module (
    // latch address, operation, and write data on rising clock edge
    // when strobe is asserted
 
-   assign biu_rst = rst_i | biu_clr_err;
+   // We implement a glitch filter....
+   wire biu_clr_err_dly;
+   wire biu_clr_err_filtered;
+
+
+   primitive_very_long_delay
+     #(.LIB(LIB),.STAGES(4))
+            U_VLD(.i(biu_clr_err),.z(biu_clr_err_dly));
+
+   primitive_and2 #(.LIB(LIB)) U_AND2 (.z(biu_clr_err_filtered), .i0(biu_clr_err_dly), .i1(biu_clr_err));
+   primitive_or2 #(.LIB(LIB)) U_OR2 (.z(biu_rst), .i0(rst_i), .i1(biu_clr_err_filtered));
+
+
+   // assign biu_rst = rst_i | biu_clr_err;
 
    adbg_wb_biu wb_biu_i
      (

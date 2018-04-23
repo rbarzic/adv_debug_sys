@@ -135,6 +135,7 @@ module adbg_top(
                 `endif
 
 		);
+   parameter LIB = "undef";
 
 
    // JTAG signals
@@ -276,7 +277,10 @@ end
 
 `ifdef DBG_WISHBONE_SUPPORTED
 // Connecting wishbone module
-adbg_wb_module i_dbg_wb (
+
+adbg_wb_module
+  #(.LIB(LIB))
+  i_dbg_wb (
                   // JTAG signals
                   .tck_i            (tck_i),
                   .module_tdo_o     (tdo_wb),
